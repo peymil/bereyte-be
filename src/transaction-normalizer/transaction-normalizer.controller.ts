@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, HttpCode } from '@nestjs/common';
+import { Controller, Post, Delete, Get, HttpCode } from '@nestjs/common';
 import { TransactionNormalizerService } from './transaction-normalizer.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NormalizedTransactionResponse } from './dtos/analyze-transaction.dto';
@@ -9,6 +9,19 @@ export class TransactionNormalizerController {
   constructor(
     private readonly transactionNormalizerService: TransactionNormalizerService,
   ) {}
+
+  @Get('merchant')
+  @ApiOperation({
+    summary: 'Get all normalized transactions',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of normalized transactions',
+    type: [NormalizedTransactionResponse],
+  })
+  async getNormalizedTransactions() {
+    return this.transactionNormalizerService.getNormalizedTransactions();
+  }
 
   @Post('merchant')
   @ApiOperation({

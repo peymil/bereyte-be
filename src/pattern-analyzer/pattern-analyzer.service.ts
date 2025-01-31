@@ -29,6 +29,28 @@ export class PatternAnalyzerService {
     }
   }
 
+  async getPatterns() {
+    const patterns = await this.transactionPatternModel
+      .find()
+      .sort({ lastOccurrence: -1 })
+      .lean();
+
+    return {
+      patterns: patterns.map((pattern) => ({
+        type: pattern.type,
+        merchant: pattern.merchant,
+        amount: pattern.amount,
+        frequency: pattern.frequency,
+        confidence: pattern.confidence,
+        next_expected: pattern.nextExpected,
+        last_occurrence: pattern.lastOccurrence,
+        occurrence_count: pattern.occurrenceCount,
+        is_active: pattern.isActive,
+        _id: pattern._id,
+      })),
+    };
+  }
+
   async analyzePatterns() {
     const transactions = await this.transactionModel
       .find()

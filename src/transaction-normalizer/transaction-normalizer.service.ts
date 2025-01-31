@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   NormalizedTransaction,
   NormalizedTransactionDocument,
@@ -31,6 +31,27 @@ export class TransactionNormalizerService {
     }
   }
 
+  async getNormalizedTransactions(): Promise<NormalizedTransactionResponse[]> {
+    const normalizedTransactions = await this.normalizedTransactionModel
+      .find()
+      .sort({ transactionDate: -1 })
+      .lean();
+
+    return normalizedTransactions.map((transaction) => ({
+      normalized: {
+        merchant: transaction.merchant,
+        category: transaction.category,
+        subCategory: transaction.subCategory,
+        confidence: transaction.confidence,
+        isSubscription: transaction.isSubscription,
+        flags: transaction.flags,
+      },
+      amount: transaction.amount,
+      date: transaction.transactionDate,
+      _id: (transaction._id as Types.ObjectId).toHexString(),
+    }));
+  }
+
   async analyzeTransactions(): Promise<NormalizedTransactionResponse[]> {
     const normalizedTransactionIds =
       await this.normalizedTransactionModel.distinct('transactionId');
@@ -55,7 +76,7 @@ export class TransactionNormalizerService {
         date: transaction.date,
       });
 
-      await this.normalizedTransactionModel.create({
+      const savedTransaction = await this.normalizedTransactionModel.create({
         transactionId: transaction._id,
         merchant: normalized.merchant,
         category: normalized.category,
@@ -71,11 +92,14 @@ export class TransactionNormalizerService {
         normalized: {
           merchant: normalized.merchant,
           category: normalized.category,
-          sub_category: normalized.subCategory,
+          subCategory: normalized.subCategory,
           confidence: normalized.confidence,
-          is_subscription: normalized.isSubscription,
+          isSubscription: normalized.isSubscription,
           flags: normalized.flags,
         },
+        amount: transaction.amount,
+        date: transaction.date,
+        _id: (savedTransaction._id as Types.ObjectId).toHexString(),
       });
     }
 

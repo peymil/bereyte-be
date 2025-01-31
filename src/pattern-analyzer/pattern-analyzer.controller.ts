@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, HttpCode } from '@nestjs/common';
+import { Controller, Post, Delete, Get, HttpCode } from '@nestjs/common';
 import { PatternAnalyzerService } from './pattern-analyzer.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AnalyzePatternsResponse } from './dtos/analyze-patterns.dto';
@@ -9,6 +9,17 @@ export class PatternAnalyzerController {
   constructor(
     private readonly patternAnalyzerService: PatternAnalyzerService,
   ) {}
+
+  @Get('patterns')
+  @ApiOperation({ summary: 'Get all detected patterns' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of detected patterns',
+    type: [AnalyzePatternsResponse],
+  })
+  async getPatterns() {
+    return this.patternAnalyzerService.getPatterns();
+  }
 
   @Post('patterns')
   @ApiOperation({ summary: 'Analyze patterns in transactions' })

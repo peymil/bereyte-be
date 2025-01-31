@@ -7,14 +7,14 @@ export class NormalizedTransactionData {
   @ApiProperty()
   category: string;
 
-  @ApiProperty({ name: 'sub_category' })
-  sub_category: string;
+  @ApiProperty()
+  subCategory: string;
 
   @ApiProperty()
   confidence: number;
 
-  @ApiProperty({ name: 'is_subscription' })
-  is_subscription: boolean;
+  @ApiProperty()
+  isSubscription: boolean;
 
   @ApiProperty({ type: [String] })
   flags: string[];
@@ -23,4 +23,13 @@ export class NormalizedTransactionData {
 export class NormalizedTransactionResponse {
   @ApiProperty({ type: NormalizedTransactionData })
   normalized: NormalizedTransactionData;
+
+  @ApiProperty()
+  amount: number;
+
+  @ApiProperty()
+  date: Date;
+
+  @ApiProperty()
+  _id: string;
 }
