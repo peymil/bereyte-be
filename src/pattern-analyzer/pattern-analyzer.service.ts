@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OpenRouterPatternDetectorStrategy } from '../ai/strategies/openrouter-pattern-detector.strategy';
@@ -31,7 +31,7 @@ export class PatternAnalyzerService {
       .exec();
 
     if (transactions.length === 0) {
-      return { patterns: [] };
+      throw new BadRequestException('No transactions found for session. Upload a file first.');
     }
 
     const transactionsForAnalysis = transactions.map((t) => ({

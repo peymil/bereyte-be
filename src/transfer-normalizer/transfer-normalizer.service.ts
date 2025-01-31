@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OpenRouterTransactionNormalizerStrategy } from '../ai/strategies/openrouter-transaction-normalizer.strategy';
@@ -34,6 +34,12 @@ export class TransferNormalizerService {
           .distinct('transactionId'),
       },
     });
+
+    if (transactions.length === 0) {
+      throw new BadRequestException(
+        'No transactions found for session. Upload a file first',
+      );
+    }
 
     const results: NormalizedTransactionResponse[] = [];
     for (const transaction of transactions) {
