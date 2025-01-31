@@ -4,16 +4,14 @@ import * as session from 'express-session';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import MongoStoreFactory from 'connect-mongodb-session';
+import * as MongoStoreFactory from 'connect-mongodb-session';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
   // Configure CORS
-  const corsSites = configService.get<string>('CORS_SITES');
-  if (!corsSites) {
-    throw new Error('CORS_SITES environment variable is required');
-  }
+  const corsSites = configService.getOrThrow<string>('CORS_SITES');
+
   const corsOrigins = corsSites
     .split(',')
     .map((site: string) => site.trim())
