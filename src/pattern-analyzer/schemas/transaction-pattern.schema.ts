@@ -50,4 +50,5 @@ export class TransactionPattern {
   sessionId: string;
 }
 
-export const TransactionPatternSchema = SchemaFactory.createForClass(TransactionPattern);
+export const TransactionPatternSchema =
+  SchemaFactory.createForClass(TransactionPattern);

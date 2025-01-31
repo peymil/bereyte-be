@@ -29,9 +29,12 @@ export class OpenRouterTransactionNormalizerStrategy
       - flags: Array of relevant tags (e.g., "online_purchase", "marketplace", "recurring")
     `;
 
-    return this.createStructuredCompletion<NormalizedTransactionOutput>(prompt, {
-      temperature: 0.3,
-      maxTokens: 300,
-    });
+    return this.createStructuredCompletion<NormalizedTransactionOutput>(
+      prompt,
+      {
+        temperature: 0.3,
+        maxTokens: 300,
+      },
+    );
   }
 }

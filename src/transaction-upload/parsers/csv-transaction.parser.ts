@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ParsedTransaction, TransactionParser } from './transaction-parser.interface';
+import {
+  ParsedTransaction,
+  TransactionParser,
+} from './transaction-parser.interface';
 import { parse } from 'csv-parse';
 
 @Injectable()
@@ -14,8 +17,13 @@ export class CsvTransactionParser implements TransactionParser {
       })
         .on('data', (record: any) => {
           records.push({
-            description: record.description || record.merchant || record.transaction_description,
-            amount: this.parseAmount(record.amount || record.transaction_amount),
+            description:
+              record.description ||
+              record.merchant ||
+              record.transaction_description,
+            amount: this.parseAmount(
+              record.amount || record.transaction_amount,
+            ),
             date: this.parseDate(record.date || record.transaction_date),
           });
         })

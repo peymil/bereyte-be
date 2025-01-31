@@ -7,7 +7,9 @@ import { AnalyzePatternsResponse } from './dtos/analyze-patterns.dto';
 @ApiTags('Pattern Analysis')
 @Controller('api/analyze')
 export class PatternAnalyzerController {
-  constructor(private readonly patternAnalyzerService: PatternAnalyzerService) {}
+  constructor(
+    private readonly patternAnalyzerService: PatternAnalyzerService,
+  ) {}
 
   @Post('patterns')
   @ApiOperation({ summary: 'Analyze patterns in session transactions' })

@@ -3,7 +3,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AIModule } from '../ai/ai.module';
 import { TransferNormalizerController } from './transfer-normalizer.controller';
 import { TransferNormalizerService } from './transfer-normalizer.service';
-import { Transaction, TransactionSchema } from '../transaction-upload/schemas/transaction.schema';
+import {
+  Transaction,
+  TransactionSchema,
+} from '../transaction-upload/schemas/transaction.schema';
 import {
   NormalizedTransaction,
   NormalizedTransactionSchema,

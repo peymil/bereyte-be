@@ -1,23 +1,38 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as session from 'express-session';
-import * as MongoDBStore from 'connect-mongodb-session';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+import MongoStoreFactory from 'connect-mongodb-session';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const MongoStore = MongoDBStore(session);
+
+  // Configure CORS
+  const corsSites = configService.get<string>('CORS_SITES');
+  if (!corsSites) {
+    throw new Error('CORS_SITES environment variable is required');
+  }
+  const corsOrigins = corsSites
+    .split(',')
+    .map((site: string) => site.trim())
+    .filter((site: string) => site.length > 0);
+
+  app.enableCors({
+    origin: corsOrigins,
+    credentials: true,
+  });
+
+  const MongoDbStore = MongoStoreFactory(session);
 
   app.use(
     session({
       secret: configService.get('SESSION_SECRET') || 'my-secret',
       resave: false,
       saveUninitialized: false,
-      store: new MongoStore({
-        uri: configService.get('MONGODB_URI'),
+      store: new MongoDbStore({
+        uri: configService.getOrThrow('MONGODB_URI'),
         collection: 'sessions',
       }),
       cookie: {

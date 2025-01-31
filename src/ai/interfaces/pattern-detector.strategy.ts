@@ -1,4 +1,7 @@
-import { FrequencyType, PatternType } from '../../pattern-analyzer/schemas/transaction-pattern.schema';
+import {
+  FrequencyType,
+  PatternType,
+} from '../../pattern-analyzer/schemas/transaction-pattern.schema';
 
 export interface Transaction {
   description: string;

@@ -7,10 +7,14 @@ import { NormalizedTransactionResponse } from './dtos/analyze-transaction.dto';
 @ApiTags('Transaction Analysis')
 @Controller('api/analyze')
 export class TransferNormalizerController {
-  constructor(private readonly transferNormalizerService: TransferNormalizerService) {}
+  constructor(
+    private readonly transferNormalizerService: TransferNormalizerService,
+  ) {}
 
   @Post('merchant')
-  @ApiOperation({ summary: 'Analyze and normalize all transactions in the session' })
+  @ApiOperation({
+    summary: 'Analyze and normalize all transactions in the session',
+  })
   @ApiResponse({
     status: 200,
     description: 'Transactions successfully analyzed',

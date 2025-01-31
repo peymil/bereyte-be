@@ -36,4 +36,6 @@ export class NormalizedTransaction {
   sessionId: string;
 }
 
-export const NormalizedTransactionSchema = SchemaFactory.createForClass(NormalizedTransaction);
+export const NormalizedTransactionSchema = SchemaFactory.createForClass(
+  NormalizedTransaction,
+);

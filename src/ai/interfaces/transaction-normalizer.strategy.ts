@@ -14,5 +14,7 @@ export interface NormalizedTransactionOutput {
 }
 
 export interface TransactionNormalizerStrategy {
-  normalize(transaction: TransactionNormalizerInput): Promise<NormalizedTransactionOutput>;
+  normalize(
+    transaction: TransactionNormalizerInput,
+  ): Promise<NormalizedTransactionOutput>;
 }

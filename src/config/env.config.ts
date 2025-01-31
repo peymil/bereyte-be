@@ -21,6 +21,10 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   SESSION_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  CORS_SITES: string;
 }
 
 export function validate(config: Record<string, unknown>) {

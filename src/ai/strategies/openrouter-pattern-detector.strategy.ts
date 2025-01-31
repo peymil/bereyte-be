@@ -11,19 +11,23 @@ export class OpenRouterPatternDetectorStrategy
   extends OpenAIService
   implements PatternDetectorStrategy
 {
-  async detectPatterns(transactions: Transaction[]): Promise<DetectedPattern[]> {
+  async detectPatterns(
+    transactions: Transaction[],
+  ): Promise<DetectedPattern[]> {
     const prompt = `
       Analyze these transactions and detect patterns, especially subscriptions and recurring payments.
       Return the analysis in JSON format.
 
       Transactions:
-      ${transactions.map(
-        (t) => `
+      ${transactions
+        .map(
+          (t) => `
         Description: ${t.description}
         Amount: ${t.amount}
         Date: ${t.date}
       `,
-      ).join('\n')}
+        )
+        .join('\n')}
 
       Required fields for each pattern:
       - type: Type of pattern (subscription, recurring, periodic)

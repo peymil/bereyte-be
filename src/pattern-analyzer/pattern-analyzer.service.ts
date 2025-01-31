@@ -8,7 +8,10 @@ import {
   PatternType,
   FrequencyType,
 } from './schemas/transaction-pattern.schema';
-import { Transaction, TransactionDocument } from '../transaction-upload/schemas/transaction.schema';
+import {
+  Transaction,
+  TransactionDocument,
+} from '../transaction-upload/schemas/transaction.schema';
 
 @Injectable()
 export class PatternAnalyzerService {
@@ -22,7 +25,8 @@ export class PatternAnalyzerService {
 
   async analyzePatterns(sessionId: string) {
     // Get all transactions for the session
-    const transactions = await this.transactionModel.find({ sessionId })
+    const transactions = await this.transactionModel
+      .find({ sessionId })
       .sort({ date: 1 }) // Sort by date ascending for pattern detection
       .exec();
 
@@ -30,7 +34,7 @@ export class PatternAnalyzerService {
       return { patterns: [] };
     }
 
-    const transactionsForAnalysis = transactions.map(t => ({
+    const transactionsForAnalysis = transactions.map((t) => ({
       description: t.description,
       amount: t.amount,
       date: t.date.toISOString().split('T')[0],
@@ -58,7 +62,9 @@ export class PatternAnalyzerService {
             frequency: pattern.frequency as FrequencyType,
             confidence: pattern.confidence,
             nextExpected: new Date(pattern.nextExpected),
-            lastOccurrence: new Date(transactions[transactions.length - 1].date),
+            lastOccurrence: new Date(
+              transactions[transactions.length - 1].date,
+            ),
             occurrenceCount: 1,
             isActive: true,
             sessionId,
@@ -69,7 +75,7 @@ export class PatternAnalyzerService {
     );
 
     return {
-      patterns: detectedPatterns.map(pattern => ({
+      patterns: detectedPatterns.map((pattern) => ({
         type: pattern.type,
         merchant: pattern.merchant,
         amount: pattern.amount,
