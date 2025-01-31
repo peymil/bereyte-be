@@ -28,7 +28,7 @@ async function bootstrap() {
     session({
       secret: configService.get('SESSION_SECRET') || 'my-secret',
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
       store: new MongoDbStore({
         uri: configService.getOrThrow('MONGODB_URI'),
         collection: 'sessions',
