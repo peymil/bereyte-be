@@ -11,6 +11,7 @@ import {
   Transaction,
   TransactionSchema,
 } from '../transaction-upload/schemas/transaction.schema';
+import { OpenRouterPatternDetectorStrategy } from './strategies/openrouter-pattern-detector.strategy';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import {
     ]),
   ],
   controllers: [PatternAnalyzerController],
-  providers: [PatternAnalyzerService],
+  providers: [PatternAnalyzerService, OpenRouterPatternDetectorStrategy],
   exports: [PatternAnalyzerService],
 })
 export class PatternAnalyzerModule {}

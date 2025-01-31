@@ -26,7 +26,7 @@ async function bootstrap() {
 
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET') || 'my-secret',
+      secret: configService.getOrThrow('SESSION_SECRET'),
       resave: false,
       saveUninitialized: true,
       store: new MongoDbStore({
@@ -52,6 +52,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(configService.get('PORT') ?? 3000);
 }
 bootstrap();

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { OpenAIService } from '../openai.service';
+import { OpenAIService } from '../../ai/openai.service';
 import {
   TransactionNormalizerStrategy,
   TransactionNormalizerInput,
   NormalizedTransactionOutput,
-} from '../interfaces/transaction-normalizer.strategy';
+} from '../transfer-normalizer.interface';
 
 @Injectable()
 export class OpenRouterTransactionNormalizerStrategy

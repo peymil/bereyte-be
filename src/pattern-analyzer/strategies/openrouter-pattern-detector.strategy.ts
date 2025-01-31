@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { OpenAIService } from '../openai.service';
+import { OpenAIService } from '../../ai/openai.service';
 import {
+  DetectedPattern,
   PatternDetectorStrategy,
   Transaction,
-  DetectedPattern,
-} from '../interfaces/pattern-detector.strategy';
+} from '../pattern-detector.interface';
 
 @Injectable()
 export class OpenRouterPatternDetectorStrategy

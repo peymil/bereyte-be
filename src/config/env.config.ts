@@ -4,10 +4,9 @@ import { plainToClass } from 'class-transformer';
 export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
-  NODE_ENV: string;
+  NODE_ENV = 'development';
 
   @IsString()
-  @IsNotEmpty()
   PORT: string;
 
   @IsString()

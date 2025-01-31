@@ -10,10 +10,6 @@ export class OpenAIService {
     this.openai = new OpenAI({
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
       baseURL: 'https://openrouter.ai/api/v1',
-      defaultHeaders: {
-        'HTTP-Referer': 'https://github.com/bereyte-be',
-        'X-Title': 'Transaction Analysis System',
-      },
     });
   }
 
@@ -51,9 +47,9 @@ export class OpenAIService {
   ): Promise<T> {
     const response = await this.createCompletion(prompt, options);
     try {
-      return JSON.parse(response);
-    } catch (error) {
-      throw new Error('Failed to parse AI response as JSON');
+      return JSON.parse(response) as T;
+    } catch {
+      throw new Error('Failed to parse response from LLM model.');
     }
   }
 }

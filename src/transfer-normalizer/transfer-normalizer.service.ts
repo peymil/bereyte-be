@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OpenRouterTransactionNormalizerStrategy } from '../ai/strategies/openrouter-transaction-normalizer.strategy';
+import { OpenRouterTransactionNormalizerStrategy } from './strategies/openrouter-transaction-normalizer.strategy';
 import {
   NormalizedTransaction,
   NormalizedTransactionDocument,
@@ -25,7 +25,7 @@ export class TransferNormalizerService {
   async analyzeTransactions(
     sessionId: string,
   ): Promise<NormalizedTransactionResponse[]> {
-    // Get all transactions for the session that haven't been normalized yet
+    // Shitty fix I know.
     const transactions = await this.transactionModel.find({
       sessionId,
       _id: {
@@ -43,14 +43,12 @@ export class TransferNormalizerService {
 
     const results: NormalizedTransactionResponse[] = [];
     for (const transaction of transactions) {
-      // Normalize each transaction
       const normalized = await this.normalizerStrategy.normalize({
         description: transaction.description,
         amount: transaction.amount,
         date: transaction.date.toISOString(),
       });
 
-      // Save the normalized transaction
       await this.normalizedTransactionModel.create({
         transactionId: transaction._id,
         merchant: normalized.merchant,

@@ -11,6 +11,7 @@ import {
   NormalizedTransaction,
   NormalizedTransactionSchema,
 } from './schemas/normalized-transaction.schema';
+import { OpenRouterTransactionNormalizerStrategy } from './strategies/openrouter-transaction-normalizer.strategy';
 
 @Module({
   imports: [
@@ -21,7 +22,10 @@ import {
     ]),
   ],
   controllers: [TransferNormalizerController],
-  providers: [TransferNormalizerService],
+  providers: [
+    TransferNormalizerService,
+    OpenRouterTransactionNormalizerStrategy,
+  ],
   exports: [TransferNormalizerService],
 })
 export class TransferNormalizerModule {}

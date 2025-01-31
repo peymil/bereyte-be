@@ -15,7 +15,7 @@ import { PatternAnalyzerModule } from './pattern-analyzer/pattern-analyzer.modul
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
       inject: [ConfigService],

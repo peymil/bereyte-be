@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OpenRouterPatternDetectorStrategy } from '../ai/strategies/openrouter-pattern-detector.strategy';
+import { OpenRouterPatternDetectorStrategy } from './strategies/openrouter-pattern-detector.strategy';
 import {
   TransactionPattern,
   TransactionPatternDocument,
-  PatternType,
-  FrequencyType,
 } from './schemas/transaction-pattern.schema';
 import {
   Transaction,
@@ -24,14 +22,15 @@ export class PatternAnalyzerService {
   ) {}
 
   async analyzePatterns(sessionId: string) {
-    // Get all transactions for the session
     const transactions = await this.transactionModel
       .find({ sessionId })
-      .sort({ date: 1 }) // Sort by date ascending for pattern detection
+      .sort({ date: 1 }) // asc
       .exec();
 
     if (transactions.length === 0) {
-      throw new BadRequestException('No transactions found for session. Upload a file first.');
+      throw new BadRequestException(
+        'No transactions found for session. Upload a file first.',
+      );
     }
 
     const transactionsForAnalysis = transactions.map((t) => ({
@@ -44,7 +43,6 @@ export class PatternAnalyzerService {
       transactionsForAnalysis,
     );
 
-    // Save detected patterns
     await Promise.all(
       detectedPatterns.map(async (pattern) => {
         const existingPattern = await this.transactionPatternModel.findOne({
@@ -56,10 +54,10 @@ export class PatternAnalyzerService {
 
         if (!existingPattern) {
           const newPattern = new this.transactionPatternModel({
-            type: pattern.type as PatternType,
+            type: pattern.type,
             merchant: pattern.merchant,
             amount: Math.abs(pattern.amount),
-            frequency: pattern.frequency as FrequencyType,
+            frequency: pattern.frequency,
             confidence: pattern.confidence,
             nextExpected: new Date(pattern.nextExpected),
             lastOccurrence: new Date(
