@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { validate } from './config/env.config';
 import { AIModule } from './ai/ai.module';
-import { TransferNormalizerModule } from './transfer-normalizer/transfer-normalizer.module';
+import { TransactionNormalizerModule } from './transaction-normalizer/transaction-normalizer.module';
 import { TransactionUploadModule } from './transaction-upload/transaction-upload.module';
 import { PatternAnalyzerModule } from './pattern-analyzer/pattern-analyzer.module';
 
@@ -21,7 +21,7 @@ import { PatternAnalyzerModule } from './pattern-analyzer/pattern-analyzer.modul
       inject: [ConfigService],
     }),
     AIModule,
-    TransferNormalizerModule,
+    TransactionNormalizerModule,
     TransactionUploadModule,
     PatternAnalyzerModule,
   ],

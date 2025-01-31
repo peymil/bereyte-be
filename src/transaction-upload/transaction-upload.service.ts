@@ -12,7 +12,7 @@ export class TransactionUploadService {
     private readonly parserFactory: TransactionParserFactory,
   ) {}
 
-  async processFile(file: Express.Multer.File, sessionId: string) {
+  async processFile(file: Express.Multer.File) {
     const parser = this.parserFactory.getParser(file.originalname);
     const transactions = await parser.parse(file.buffer);
 
@@ -23,7 +23,6 @@ export class TransactionUploadService {
           amount: transaction.amount,
           date: new Date(transaction.date),
           source: file.originalname,
-          sessionId,
         });
         return newTransaction.save();
       }),
@@ -39,5 +38,9 @@ export class TransactionUploadService {
         date: t.date,
       })),
     };
+  }
+
+  async deleteAllTransactions(): Promise<void> {
+    await this.transactionModel.deleteMany({});
   }
 }

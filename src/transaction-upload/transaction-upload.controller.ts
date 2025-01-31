@@ -3,11 +3,11 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-  Req,
+  Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TransactionUploadService } from './transaction-upload.service';
-import { Request } from 'express';
 import {
   ApiConsumes,
   ApiOperation,
@@ -33,10 +33,18 @@ export class TransactionUploadController {
   })
   @ApiResponse({ status: 400, description: 'Invalid file format' })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
-  ) {
-    return this.transactionUploadService.processFile(file, req.session.id);
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.transactionUploadService.processFile(file);
+  }
+
+  @Delete()
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete all transactions' })
+  @ApiResponse({
+    status: 204,
+    description: 'All transactions deleted successfully',
+  })
+  async deleteAllTransactions() {
+    return this.transactionUploadService.deleteAllTransactions();
   }
 }

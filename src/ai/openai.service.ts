@@ -37,7 +37,7 @@ export class OpenAIService {
     return response.choices[0]?.message?.content || '';
   }
 
-  protected async createStructuredCompletion<T>(
+  async createStructuredCompletion<T>(
     prompt: string,
     options: {
       model?: string;
@@ -51,5 +51,16 @@ export class OpenAIService {
     } catch {
       throw new Error('Failed to parse response from LLM model.');
     }
+  }
+
+  async analyzeTransaction<T>(
+    prompt: string,
+    options: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+    } = {},
+  ): Promise<T> {
+    return this.createStructuredCompletion<T>(prompt, options);
   }
 }

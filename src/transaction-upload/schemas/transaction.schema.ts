@@ -16,9 +16,6 @@ export class Transaction {
 
   @Prop({ type: String })
   source?: string;
-
-  @Prop({ required: true })
-  sessionId: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

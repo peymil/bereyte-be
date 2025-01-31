@@ -31,9 +31,6 @@ export class NormalizedTransaction {
 
   @Prop({ type: Number, required: true })
   amount: number;
-
-  @Prop({ required: true })
-  sessionId: string;
 }
 
 export const NormalizedTransactionSchema = SchemaFactory.createForClass(

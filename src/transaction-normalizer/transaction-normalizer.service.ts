@@ -1,52 +1,58 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OpenRouterTransactionNormalizerStrategy } from './strategies/openrouter-transaction-normalizer.strategy';
 import {
   NormalizedTransaction,
   NormalizedTransactionDocument,
-} from '../transfer-normalizer/schemas/normalized-transaction.schema';
+} from './schemas/normalized-transaction.schema';
 import {
   Transaction,
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
 import { NormalizedTransactionResponse } from './dtos/analyze-transaction.dto';
+import { Gpt35TransactionNormalizerStrategy } from './strategies/gpt35-transaction-normalizer.strategy';
+import { TransactionNormalizer as TransactionNormalizerInterface } from './transaction-normalizer.interface';
 
 @Injectable()
-export class TransferNormalizerService {
+export class TransactionNormalizerService {
   constructor(
-    private readonly normalizerStrategy: OpenRouterTransactionNormalizerStrategy,
+    private readonly gpt35TransactionNormalizerStrategy: Gpt35TransactionNormalizerStrategy,
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(NormalizedTransaction.name)
     private normalizedTransactionModel: Model<NormalizedTransactionDocument>,
   ) {}
 
-  async analyzeTransactions(
-    sessionId: string,
-  ): Promise<NormalizedTransactionResponse[]> {
-    // Shitty fix I know.
+  selectStrategy(strategy: string): TransactionNormalizerInterface {
+    if (strategy === 'gpt3.5') {
+      return this.gpt35TransactionNormalizerStrategy;
+    } else {
+      throw new BadRequestException('Invalid strategy');
+    }
+  }
+
+  async analyzeTransactions(): Promise<NormalizedTransactionResponse[]> {
+    const normalizedTransactionIds =
+      await this.normalizedTransactionModel.distinct('transactionId');
+
+    // shitty fix but added for now for UX.
     const transactions = await this.transactionModel.find({
-      sessionId,
-      _id: {
-        $nin: await this.normalizedTransactionModel
-          .find({ sessionId })
-          .distinct('transactionId'),
-      },
+      _id: { $nin: normalizedTransactionIds },
     });
 
     if (transactions.length === 0) {
       throw new BadRequestException(
-        'No transactions found for session. Upload a file first',
+        'No transactions found to analyze. Upload a file first',
       );
     }
 
     const results: NormalizedTransactionResponse[] = [];
+    const strategy = this.selectStrategy('gpt3.5');
     for (const transaction of transactions) {
-      const normalized = await this.normalizerStrategy.normalize({
+      const normalized = await strategy.normalize({
         description: transaction.description,
         amount: transaction.amount,
-        date: transaction.date.toISOString(),
+        date: transaction.date,
       });
 
       await this.normalizedTransactionModel.create({
@@ -59,7 +65,6 @@ export class TransferNormalizerService {
         flags: normalized.flags,
         transactionDate: transaction.date,
         amount: transaction.amount,
-        sessionId,
       });
 
       results.push({
@@ -75,5 +80,9 @@ export class TransferNormalizerService {
     }
 
     return results;
+  }
+
+  async deleteAllNormalizedTransactions(): Promise<void> {
+    await this.normalizedTransactionModel.deleteMany({});
   }
 }

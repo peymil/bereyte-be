@@ -23,25 +23,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const MongoDbStore = MongoStoreFactory(session);
-  app.set('trust proxy', 1);
-  app.use(
-    session({
-      secret: configService.getOrThrow('SESSION_SECRET'),
-      resave: false,
-      saveUninitialized: true,
-      name: 'access-token',
-      store: new MongoDbStore({
-        uri: configService.getOrThrow('MONGODB_URI'),
-        collection: 'sessions',
-      }),
-      cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        secure: process.env.NODE_ENV === 'production',
-      },
-    }),
-  );
-
   const config = new DocumentBuilder()
     .setTitle('Transaction Analysis API')
     .setDescription('API for analyzing and normalizing transaction data')

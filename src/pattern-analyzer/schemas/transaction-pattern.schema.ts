@@ -45,9 +45,6 @@ export class TransactionPattern {
 
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
-
-  @Prop({ required: true })
-  sessionId: string;
 }
 
 export const TransactionPatternSchema =

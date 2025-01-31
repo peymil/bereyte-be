@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OpenRouterPatternDetectorStrategy } from './strategies/openrouter-pattern-detector.strategy';
 import {
   TransactionPattern,
   TransactionPatternDocument,
@@ -10,26 +9,35 @@ import {
   Transaction,
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
+import { Gpt35PatternDetectorStrategy } from './strategies/gpt35-pattern-detector.strategy';
 
 @Injectable()
 export class PatternAnalyzerService {
   constructor(
-    private readonly patternDetectorStrategy: OpenRouterPatternDetectorStrategy,
+    private readonly gpt35PatternDetectorStrategy: Gpt35PatternDetectorStrategy,
     @InjectModel(TransactionPattern.name)
     private transactionPatternModel: Model<TransactionPatternDocument>,
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  async analyzePatterns(sessionId: string) {
+  selectPatternAnalyzerStrategy(strategy: string) {
+    if (strategy === 'gpt3.5') {
+      return this.gpt35PatternDetectorStrategy;
+    } else {
+      throw new BadRequestException('Invalid strategy');
+    }
+  }
+
+  async analyzePatterns() {
     const transactions = await this.transactionModel
-      .find({ sessionId })
+      .find()
       .sort({ date: 1 }) // asc
       .exec();
 
     if (transactions.length === 0) {
       throw new BadRequestException(
-        'No transactions found for session. Upload a file first.',
+        'No transactions found. Upload a file first.',
       );
     }
 
@@ -39,14 +47,15 @@ export class PatternAnalyzerService {
       date: t.date.toISOString().split('T')[0],
     }));
 
-    const detectedPatterns = await this.patternDetectorStrategy.detectPatterns(
+    const strategy = this.selectPatternAnalyzerStrategy('gpt3.5');
+
+    const detectedPatterns = await strategy.detectPatterns(
       transactionsForAnalysis,
     );
 
     await Promise.all(
       detectedPatterns.map(async (pattern) => {
         const existingPattern = await this.transactionPatternModel.findOne({
-          sessionId,
           merchant: pattern.merchant,
           amount: Math.abs(pattern.amount),
           type: pattern.type,
@@ -65,7 +74,6 @@ export class PatternAnalyzerService {
             ),
             occurrenceCount: 1,
             isActive: true,
-            sessionId,
           });
           await newPattern.save();
         }
@@ -82,5 +90,9 @@ export class PatternAnalyzerService {
         next_expected: pattern.nextExpected,
       })),
     };
+  }
+
+  async deleteAllPatterns(): Promise<void> {
+    await this.transactionPatternModel.deleteMany({});
   }
 }
