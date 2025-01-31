@@ -10,27 +10,37 @@ export class Gpt35TransactionNormalizerStrategy
 {
   constructor(private readonly openAIService: OpenAIService) {}
 
-  async normalize(transaction: Transaction): Promise<NormalizedTransaction> {
-    const prompt = `Analyze this transaction and provide a JSON response with the following structure:
-{
-  "merchant": "normalized/cleaned merchant name",
-  "category": "main category (e.g., Food & Dining, Shopping, Bills & Utilities)",
-  "subCategory": "specific category (e.g., Restaurants, Groceries, Online Shopping)",
-  "confidence": "confidence score between 0-1",
-  "isSubscription": "boolean indicating if this is a subscription payment",
-  "flags": ["array of relevant flags like recurring, high-value, international"]
-}
+  async normalize(
+    transactions: Transaction[],
+  ): Promise<NormalizedTransaction[]> {
+    const prompt = `Analyze these transactions and provide a JSON array response with the following structure for each transaction:
+[
+  {
+    "merchant": "normalized/cleaned merchant name",
+    "category": "main category (e.g., Food & Dining, Shopping, Bills & Utilities)",
+    "subCategory": "specific category (e.g., Restaurants, Groceries, Online Shopping)",
+    "confidence": "confidence score between 0-1",
+    "isSubscription": "boolean indicating if this is a subscription payment",
+    "flags": ["array of relevant flags like recurring, high-value, international"]
+  }
+]
 
 Transaction details:
-Description: ${transaction.description}
-Amount: ${transaction.amount}
-Date: ${transaction.date.toISOString().split('T')[0]}`;
+${transactions
+  .map(
+    (t) => `
+Description: ${t.description}
+Amount: ${t.amount}
+Date: ${t.date.toISOString().split('T')[0]}
+---`,
+  )
+  .join('\n')}`;
 
-    return await this.openAIService.analyzeTransaction<NormalizedTransaction>(
+    return await this.openAIService.analyzeTransaction<NormalizedTransaction[]>(
       prompt,
       {
         temperature: 0.3,
-        maxTokens: 300,
+        maxTokens: 500,
       },
     );
   }

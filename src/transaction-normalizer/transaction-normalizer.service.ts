@@ -66,43 +66,41 @@ export class TransactionNormalizerService {
         'No transactions found to analyze. Upload a file first',
       );
     }
-
-    const results: NormalizedTransactionResponse[] = [];
     const strategy = this.selectStrategy('gpt3.5');
-    for (const transaction of transactions) {
-      const normalized = await strategy.normalize({
-        description: transaction.description,
-        amount: transaction.amount,
-        date: transaction.date,
-      });
+    const normalizedResults = await strategy.normalize(transactions);
 
-      const savedTransaction = await this.normalizedTransactionModel.create({
-        transactionId: transaction._id,
-        merchant: normalized.merchant,
-        category: normalized.category,
-        subCategory: normalized.subCategory,
-        confidence: normalized.confidence,
-        isSubscription: normalized.isSubscription,
-        flags: normalized.flags,
-        transactionDate: transaction.date,
-        amount: transaction.amount,
-      });
-
-      results.push({
-        normalized: {
+    const savedTransactions = await Promise.all(
+      transactions.map((transaction, index) => {
+        const normalized = normalizedResults[index];
+        return this.normalizedTransactionModel.create({
+          transactionId: transaction._id,
           merchant: normalized.merchant,
           category: normalized.category,
           subCategory: normalized.subCategory,
           confidence: normalized.confidence,
           isSubscription: normalized.isSubscription,
           flags: normalized.flags,
-        },
-        amount: transaction.amount,
-        date: transaction.date,
-        _id: (savedTransaction._id as Types.ObjectId).toHexString(),
-      });
-    }
+          transactionDate: transaction.date,
+          amount: transaction.amount,
+        });
+      }),
+    );
 
+    const results = savedTransactions.map((savedTransaction, index) => ({
+      normalized: {
+        merchant: normalizedResults[index].merchant,
+        category: normalizedResults[index].category,
+        subCategory: normalizedResults[index].subCategory,
+        confidence: normalizedResults[index].confidence,
+        isSubscription: normalizedResults[index].isSubscription,
+        flags: normalizedResults[index].flags,
+      },
+      amount: transactions[index].amount,
+      date: transactions[index].date,
+      _id: (savedTransaction._id as Types.ObjectId).toHexString(),
+    }));
+
+    return results;
     return results;
   }
 
