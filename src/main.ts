@@ -5,8 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as MongoStoreFactory from 'connect-mongodb-session';
+import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 
   // Configure CORS
@@ -23,12 +24,13 @@ async function bootstrap() {
   });
 
   const MongoDbStore = MongoStoreFactory(session);
-
+  app.set('trust proxy', 1);
   app.use(
     session({
       secret: configService.getOrThrow('SESSION_SECRET'),
       resave: false,
       saveUninitialized: true,
+      name: 'access-token',
       store: new MongoDbStore({
         uri: configService.getOrThrow('MONGODB_URI'),
         collection: 'sessions',
@@ -40,7 +42,6 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Transaction Analysis API')
     .setDescription('API for analyzing and normalizing transaction data')
