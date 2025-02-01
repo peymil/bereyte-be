@@ -35,7 +35,7 @@ export class TransactionNormalizerService {
     const normalizedTransactions = await this.normalizedTransactionModel
       .find()
       .populate<{ transactionId: TransactionDocument }>('transaction_id')
-      .sort({ transactionDate: -1 })
+      .sort({ transaction_date: -1 })
       .lean();
 
     return {
@@ -84,7 +84,7 @@ export class TransactionNormalizerService {
           confidence: normalized.confidence,
           is_subscription: normalized.is_subscription,
           flags: normalized.flags,
-          transactionDate: transaction.date,
+          transaction_date: transaction.date,
           amount: transaction.amount,
         });
       }),
