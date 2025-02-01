@@ -34,7 +34,7 @@ export class TransactionNormalizerService {
   async getNormalizedTransactions(): Promise<AnalyzeTransactionResponse> {
     const normalizedTransactions = await this.normalizedTransactionModel
       .find()
-      .populate<{ transactionId: TransactionDocument }>('transactionId')
+      .populate<{ transactionId: TransactionDocument }>('transaction_id')
       .sort({ transactionDate: -1 })
       .lean();
 
@@ -58,7 +58,7 @@ export class TransactionNormalizerService {
 
   async analyzeTransactions(): Promise<AnalyzeTransactionResponse> {
     const normalizedTransactionIds =
-      await this.normalizedTransactionModel.distinct('transactionId');
+      await this.normalizedTransactionModel.distinct('transaction_id');
 
     const transactions = await this.transactionModel.find({
       _id: { $nin: normalizedTransactionIds },
@@ -76,7 +76,7 @@ export class TransactionNormalizerService {
       transactions.map((transaction, index) => {
         const normalized = normalizedResults[index];
         return this.normalizedTransactionModel.create({
-          transactionId: transaction._id,
+          transaction_id: transaction._id,
           original: transaction.description,
           merchant: normalized.merchant,
           category: normalized.category,
