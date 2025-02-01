@@ -13,71 +13,83 @@ export class Gpt4MiniTransactionNormalizerStrategy
   async normalize(
     transactions: Transaction[],
   ): Promise<NormalizedTransaction[]> {
-    const prompt = `You are a transaction normalizer that analyzes financial transactions and provides structured, normalized data. For each transaction, analyze the description and provide normalized information according to the following rules:
+    const prompt = `You are a financial transaction normalization system. Your task is to analyze transaction descriptions and return ONLY a JSON array containing normalized information for each transaction. Each normalized transaction must strictly follow this format:
 
-1. Merchant Name Normalization:
-   - Remove unnecessary prefixes/suffixes (e.g., "TST*", "MKTP", store numbers)
-   - Standardize common variations (e.g., "NFLX DIGITAL NTFLX" → "Netflix")
-   - Use official brand names when possible
-
-2. Category and Sub-category:
-   - Assign a broad category (e.g., Entertainment, Shopping, Transportation)
-   - Provide a specific sub-category (e.g., Streaming Service, Online Retail, Ride Sharing)
-   - Be consistent with categorization across similar merchants
-
-3. Subscription Detection:
-   - Mark as subscription if:
-     * Regular recurring payments (streaming services, memberships)
-     * Digital services with standard pricing
-     * Known subscription providers (Netflix, Spotify, etc.)
-
-4. Confidence Score (0-1):
-   - 0.95-1.00: Clear merchant name, well-known brand
-   - 0.85-0.94: Recognizable but with some variations
-   - 0.70-0.84: Requires some interpretation
-   - Below 0.70: Significant uncertainty
-
-5. Transaction Flags:
-   - subscription: Regular recurring payments
-   - digital_service: Online/digital purchases
-   - transportation: Travel/transit related
-   - food_delivery: Restaurant delivery services
-   - retail: Physical store purchases
-   - gas: Fuel/gas station purchases
-   - marketplace: Online marketplace purchases
-   - Etc.
-
-Here are some examples of the expected output format:
-
-Input: "NFLX DIGITAL NTFLX US"
 {
-  "merchant": "Netflix",
-  "category": "Entertainment",
-  "sub_category": "Streaming Service",
-  "confidence": 0.98,
-  "is_subscription": true,
-  "flags": ["subscription", "digital_service"]
+  "merchant": "Normalized merchant name without special characters",
+  "category": "One of: Entertainment, Shopping, Transportation, Food, Utilities, Services",
+  "sub_category": "More specific category (e.g., Streaming Service, Online Retail, Ride Sharing)",
+  "confidence": "Number between 0 and 1",
+  "is_subscription": "Boolean true/false",
+  "flags": ["Array of relevant flags"]
 }
 
-Input: "UBER   *TRIP HELP.UBER.CO"
-{
-  "merchant": "Uber",
-  "category": "Transportation",
-  "sub_category": "Ride Sharing",
-  "confidence": 0.96,
-  "is_subscription": false,
-  "flags": ["transportation", "service"]
-}
+Available flags:
+- subscription: Regular recurring payments
+- digital_service: Online/digital purchases
+- transportation: Travel/transit related
+- food_delivery: Restaurant delivery services
+- retail: Physical store purchases
+- gas: Fuel/gas station purchases
+- marketplace: Online marketplace purchases
 
-Analyze the following transactions and provide normalized data in the same format:
-${JSON.stringify(transactions, null, 2)}
-`;
+Merchant Name Normalization Rules:
+1. Remove prefixes like "TST*", "MKTP", store numbers
+2. Standardize common variations (e.g., "NFLX DIGITAL NTFLX" → "Netflix")
+3. Use official brand names when possible
+4. Remove special characters and extra spaces
+
+Confidence Score Rules:
+- 0.95-1.00: Clear merchant name, well-known brand
+- 0.85-0.94: Recognizable but with some variations
+- 0.70-0.84: Requires some interpretation
+- Below 0.70: Significant uncertainty
+
+Subscription Detection Rules:
+Mark is_subscription as true if:
+1. Known subscription services (Netflix, Spotify, Apple, etc.)
+2. Digital services with standard pricing
+3. Regular recurring payments
+
+Example Input:
+[
+  {
+    "description": "NFLX DIGITAL NTFLX US",
+    "amount": 19.99,
+    "date": "2024-01-01T00:00:00.000Z"
+  }
+]
+
+Example Output:
+[
+  {
+    "merchant": "Netflix",
+    "category": "Entertainment",
+    "sub_category": "Streaming Service",
+    "confidence": 0.98,
+    "is_subscription": true,
+    "flags": ["subscription", "digital_service"]
+  }
+]
+
+IMPORTANT: Your response must be ONLY a valid JSON array containing normalized transactions. Do not include any explanations, markdown formatting, or additional text.
+
+Analyze and normalize these transactions:
+${JSON.stringify(
+  transactions.map((t) => ({
+    description: t.description,
+    amount: t.amount,
+    date: t.date.toISOString(),
+  })),
+  null,
+  2,
+)}`;
 
     const normalizedResults =
       await this.openAIService.createStructuredCompletion<
         NormalizedTransaction[]
       >(prompt, {
-        model: 'openai/gpt-4o-mini',
+        model: 'gpt-4-mini',
         temperature: 0.3,
         maxTokens: 4096,
       });
