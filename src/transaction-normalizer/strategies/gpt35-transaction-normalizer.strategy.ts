@@ -69,10 +69,8 @@ Input: "UBER   *TRIP HELP.UBER.CO"
   "flags": ["transportation", "service"]
 }
 
-Analyze the following transactions within <transactions> tag and provide normalized data in the same format:
-<transactions>
+Analyze the following transactions and provide normalized data in the same format:
 ${JSON.stringify(transactions, null, 2)}
-</transactions>
 `;
 
     const normalizedResults =
