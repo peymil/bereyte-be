@@ -9,12 +9,12 @@ import {
   Transaction,
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
-import { Gpt35PatternDetectorStrategy } from './strategies/gpt35-pattern-detector.strategy';
+import { Gpt4MiniPatternDetectorStrategy } from './strategies/gpt4-mini-pattern-detector.strategy';
 
 @Injectable()
 export class PatternAnalyzerService {
   constructor(
-    private readonly gpt35PatternDetectorStrategy: Gpt35PatternDetectorStrategy,
+    private readonly gpt4MiniPatternDetectorStrategy: Gpt4MiniPatternDetectorStrategy,
     @InjectModel(TransactionPattern.name)
     private transactionPatternModel: Model<TransactionPatternDocument>,
     @InjectModel(Transaction.name)
@@ -22,8 +22,8 @@ export class PatternAnalyzerService {
   ) {}
 
   selectPatternAnalyzerStrategy(strategy: string) {
-    if (strategy === 'gpt3.5') {
-      return this.gpt35PatternDetectorStrategy;
+    if (strategy === 'gpt4-mini') {
+      return this.gpt4MiniPatternDetectorStrategy;
     } else {
       throw new BadRequestException('Invalid strategy');
     }
@@ -52,7 +52,7 @@ export class PatternAnalyzerService {
       );
     }
 
-    const strategy = this.selectPatternAnalyzerStrategy('gpt3.5');
+    const strategy = this.selectPatternAnalyzerStrategy('gpt4-mini');
 
     const detectedPatterns = await strategy.detectPatterns(transactions);
 

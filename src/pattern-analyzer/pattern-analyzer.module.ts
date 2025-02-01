@@ -11,7 +11,7 @@ import {
   Transaction,
   TransactionSchema,
 } from '../transaction-upload/schemas/transaction.schema';
-import { Gpt35PatternDetectorStrategy } from './strategies/gpt35-pattern-detector.strategy';
+import { Gpt4MiniPatternDetectorStrategy } from './strategies/gpt4-mini-pattern-detector.strategy';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { Gpt35PatternDetectorStrategy } from './strategies/gpt35-pattern-detecto
     ]),
   ],
   controllers: [PatternAnalyzerController],
-  providers: [PatternAnalyzerService, Gpt35PatternDetectorStrategy],
+  providers: [PatternAnalyzerService, Gpt4MiniPatternDetectorStrategy],
   exports: [PatternAnalyzerService],
 })
 export class PatternAnalyzerModule {}

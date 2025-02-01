@@ -10,13 +10,13 @@ import {
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
 import { AnalyzeTransactionResponse } from './dtos/analyze-transaction.dto';
-import { Gpt35TransactionNormalizerStrategy } from './strategies/gpt35-transaction-normalizer.strategy';
+import { Gpt4MiniTransactionNormalizerStrategy } from './strategies/gpt4-mini-transaction-normalizer.strategy';
 import { TransactionNormalizer as TransactionNormalizerInterface } from './transaction-normalizer.interface';
 
 @Injectable()
 export class TransactionNormalizerService {
   constructor(
-    private readonly gpt35TransactionNormalizerStrategy: Gpt35TransactionNormalizerStrategy,
+    private readonly gpt4MiniTransactionNormalizerStrategy: Gpt4MiniTransactionNormalizerStrategy,
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(NormalizedTransaction.name)
@@ -24,8 +24,8 @@ export class TransactionNormalizerService {
   ) {}
 
   selectStrategy(strategy: string): TransactionNormalizerInterface {
-    if (strategy === 'gpt3.5') {
-      return this.gpt35TransactionNormalizerStrategy;
+    if (strategy === 'gpt4-mini') {
+      return this.gpt4MiniTransactionNormalizerStrategy;
     } else {
       throw new BadRequestException('Invalid strategy');
     }
@@ -69,7 +69,7 @@ export class TransactionNormalizerService {
         'No transactions found to analyze. Upload a file first',
       );
     }
-    const strategy = this.selectStrategy('gpt3.5');
+    const strategy = this.selectStrategy('gpt4-mini');
     const normalizedResults = await strategy.normalize(transactions);
 
     const savedTransactions = await Promise.all(

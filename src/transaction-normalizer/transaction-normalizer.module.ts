@@ -11,7 +11,7 @@ import {
   Transaction,
   TransactionSchema,
 } from '../transaction-upload/schemas/transaction.schema';
-import { Gpt35TransactionNormalizerStrategy } from './strategies/gpt35-transaction-normalizer.strategy';
+import { Gpt4MiniTransactionNormalizerStrategy } from './strategies/gpt4-mini-transaction-normalizer.strategy';
 
 @Module({
   imports: [
@@ -22,6 +22,9 @@ import { Gpt35TransactionNormalizerStrategy } from './strategies/gpt35-transacti
     AIModule,
   ],
   controllers: [TransactionNormalizerController],
-  providers: [TransactionNormalizerService, Gpt35TransactionNormalizerStrategy],
+  providers: [
+    TransactionNormalizerService,
+    Gpt4MiniTransactionNormalizerStrategy,
+  ],
 })
 export class TransactionNormalizerModule {}
