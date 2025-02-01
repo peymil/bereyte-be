@@ -69,8 +69,18 @@ Input: "UBER   *TRIP HELP.UBER.CO"
   "flags": ["transportation", "service"]
 }
 
-Analyze the following transactions and provide normalized data in the same format:
-${JSON.stringify(transactions, null, 2)}
+Analyze the following transactions and provide normalized data in the JSON format as stated in examples above:
+<transactions>
+${transactions
+  .map(
+    (t) => `
+  Description: ${t.description}
+  Amount: ${t.amount}
+  Date: ${t.date.toISOString()}
+`,
+  )
+  .join('\n')}
+</transactions>
 `;
 
     const normalizedResults =

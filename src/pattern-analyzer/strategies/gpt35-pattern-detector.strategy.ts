@@ -15,18 +15,6 @@ export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
       You are a financial pattern detection system. Analyze the provided transactions to identify recurring patterns and subscriptions.
       Focus on detecting regular payment patterns while considering variations in dates and amounts.
 
-      <transactions>
-      ${transactions
-        .map(
-          (t) => `
-        Description: ${t.description}
-        Amount: ${t.amount}
-        Date: ${t.date.toISOString()}
-      `,
-        )
-        .join('\n')}
-      </transactions>
-
       Pattern Detection Rules:
       1. Subscription Patterns:
          - Look for identical merchant names and similar amounts
@@ -78,6 +66,11 @@ export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
         "confidence": 0.9,
         "next_expected": "2024-02-15"
       }
+
+      <transactions>
+      ${JSON.stringify(transactions, null, 2)}
+      </transactions>
+
     `;
 
     return this.openAIService.createStructuredCompletion<AnalyzePatternsResponse>(
