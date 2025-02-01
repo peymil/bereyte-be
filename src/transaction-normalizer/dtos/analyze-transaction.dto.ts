@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class NormalizedTransactionData {
+export class NormalizedData {
   @ApiProperty()
   merchant: string;
 
@@ -8,28 +8,30 @@ export class NormalizedTransactionData {
   category: string;
 
   @ApiProperty()
-  subCategory: string;
+  sub_category: string;
 
   @ApiProperty()
   confidence: number;
 
   @ApiProperty()
-  isSubscription: boolean;
+  is_subscription: boolean;
 
   @ApiProperty({ type: [String] })
   flags: string[];
 }
 
-export class NormalizedTransactionResponse {
-  @ApiProperty({ type: NormalizedTransactionData })
-  normalized: NormalizedTransactionData;
+export class NormalizedTransaction {
+  @ApiProperty()
+  original: string;
 
   @ApiProperty()
   amount: number;
 
-  @ApiProperty()
-  date: Date;
+  @ApiProperty({ type: NormalizedData })
+  normalized: NormalizedData;
+}
 
-  @ApiProperty()
-  _id: string;
+export class AnalyzeTransactionResponse {
+  @ApiProperty({ type: [NormalizedTransaction] })
+  normalized_transactions: NormalizedTransaction[];
 }

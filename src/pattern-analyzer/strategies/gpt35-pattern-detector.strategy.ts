@@ -1,33 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { OpenAIService } from '../../ai/openai.service';
-import {
-  DetectedPattern,
-  PatternDetectorStrategy,
-  Transaction,
-} from '../pattern-detector.interface';
+import { PatternDetectorStrategy } from '../pattern-detector.interface';
+import { AnalyzePatternsResponse } from '../dtos/analyze-patterns.dto';
+import { Transaction } from '../../transaction-upload/schemas/transaction.schema';
 
 @Injectable()
 export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
   constructor(private readonly openAIService: OpenAIService) {}
 
-  detectPatterns(transactions: Transaction[]): Promise<DetectedPattern[]> {
+  detectPatterns(
+    transactions: Transaction[],
+  ): Promise<AnalyzePatternsResponse> {
     const prompt = `
-      Analyze these transactions and detect patterns, especially subscriptions and recurring payments.
+      Analyze these transactions within the <transactions> tag and detect patterns, especially subscriptions and recurring payments.
       Return the analysis in JSON format.
 
-      Transactions:
+      <transactions>
       ${transactions
         .map(
           (t) => `
         Description: ${t.description}
         Amount: ${t.amount}
-        Date: ${t.date}
+        Date: ${t.date.toISOString()}
       `,
         )
         .join('\n')}
-
+      </transactions>
+      
+      
       Required fields for each pattern:
-      - type: Type of pattern (subscription, recurring, periodic)
+      - type: Type of pattern (subscription, recurring)
       - merchant: Normalized merchant name
       - amount: Expected amount of the transaction
       - frequency: Frequency of occurrence (daily, weekly, monthly, quarterly, yearly)
@@ -35,7 +37,7 @@ export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
       - nextExpected: Expected date of next occurrence (YYYY-MM-DD format)
     `;
 
-    return this.openAIService.createStructuredCompletion<DetectedPattern[]>(
+    return this.openAIService.createStructuredCompletion<AnalyzePatternsResponse>(
       prompt,
       {
         temperature: 0.3,

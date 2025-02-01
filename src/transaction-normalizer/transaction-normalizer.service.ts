@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   NormalizedTransaction,
   NormalizedTransactionDocument,
@@ -9,7 +9,7 @@ import {
   Transaction,
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
-import { NormalizedTransactionResponse } from './dtos/analyze-transaction.dto';
+import { AnalyzeTransactionResponse } from './dtos/analyze-transaction.dto';
 import { Gpt35TransactionNormalizerStrategy } from './strategies/gpt35-transaction-normalizer.strategy';
 import { TransactionNormalizer as TransactionNormalizerInterface } from './transaction-normalizer.interface';
 
@@ -31,32 +31,35 @@ export class TransactionNormalizerService {
     }
   }
 
-  async getNormalizedTransactions(): Promise<NormalizedTransactionResponse[]> {
+  async getNormalizedTransactions(): Promise<AnalyzeTransactionResponse> {
     const normalizedTransactions = await this.normalizedTransactionModel
       .find()
+      .populate<{ transactionId: TransactionDocument }>('transactionId')
       .sort({ transactionDate: -1 })
       .lean();
 
-    return normalizedTransactions.map((transaction) => ({
-      normalized: {
-        merchant: transaction.merchant,
-        category: transaction.category,
-        subCategory: transaction.subCategory,
-        confidence: transaction.confidence,
-        isSubscription: transaction.isSubscription,
-        flags: transaction.flags,
-      },
-      amount: transaction.amount,
-      date: transaction.transactionDate,
-      _id: (transaction._id as Types.ObjectId).toHexString(),
-    }));
+    return {
+      normalized_transactions: normalizedTransactions.map(
+        (normalizedTransaction) => ({
+          original: normalizedTransaction.transactionId.description,
+          amount: normalizedTransaction.amount,
+          normalized: {
+            merchant: normalizedTransaction.merchant,
+            category: normalizedTransaction.category,
+            sub_category: normalizedTransaction.sub_category,
+            confidence: normalizedTransaction.confidence,
+            is_subscription: normalizedTransaction.is_subscription,
+            flags: normalizedTransaction.flags,
+          },
+        }),
+      ),
+    };
   }
 
-  async analyzeTransactions(): Promise<NormalizedTransactionResponse[]> {
+  async analyzeTransactions(): Promise<AnalyzeTransactionResponse> {
     const normalizedTransactionIds =
       await this.normalizedTransactionModel.distinct('transactionId');
 
-    // shitty fix but added for now for UX.
     const transactions = await this.transactionModel.find({
       _id: { $nin: normalizedTransactionIds },
     });
@@ -74,11 +77,12 @@ export class TransactionNormalizerService {
         const normalized = normalizedResults[index];
         return this.normalizedTransactionModel.create({
           transactionId: transaction._id,
+          original: transaction.description,
           merchant: normalized.merchant,
           category: normalized.category,
-          subCategory: normalized.subCategory,
+          sub_category: normalized.sub_category,
           confidence: normalized.confidence,
-          isSubscription: normalized.isSubscription,
+          is_subscription: normalized.is_subscription,
           flags: normalized.flags,
           transactionDate: transaction.date,
           amount: transaction.amount,
@@ -86,22 +90,22 @@ export class TransactionNormalizerService {
       }),
     );
 
-    const results = savedTransactions.map((savedTransaction, index) => ({
-      normalized: {
-        merchant: normalizedResults[index].merchant,
-        category: normalizedResults[index].category,
-        subCategory: normalizedResults[index].subCategory,
-        confidence: normalizedResults[index].confidence,
-        isSubscription: normalizedResults[index].isSubscription,
-        flags: normalizedResults[index].flags,
-      },
-      amount: transactions[index].amount,
-      date: transactions[index].date,
-      _id: (savedTransaction._id as Types.ObjectId).toHexString(),
-    }));
-
-    return results;
-    return results;
+    return {
+      normalized_transactions: savedTransactions.map(
+        (savedTransaction, index) => ({
+          original: transactions[index].description,
+          amount: transactions[index].amount,
+          normalized: {
+            merchant: normalizedResults[index].merchant,
+            category: normalizedResults[index].category,
+            sub_category: normalizedResults[index].sub_category,
+            confidence: normalizedResults[index].confidence,
+            is_subscription: normalizedResults[index].is_subscription,
+            flags: normalizedResults[index].flags,
+          },
+        }),
+      ),
+    };
   }
 
   async deleteAllNormalizedTransactions(): Promise<void> {

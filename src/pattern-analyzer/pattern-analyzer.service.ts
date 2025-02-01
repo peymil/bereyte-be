@@ -36,18 +36,7 @@ export class PatternAnalyzerService {
       .lean();
 
     return {
-      patterns: patterns.map((pattern) => ({
-        type: pattern.type,
-        merchant: pattern.merchant,
-        amount: pattern.amount,
-        frequency: pattern.frequency,
-        confidence: pattern.confidence,
-        next_expected: pattern.nextExpected,
-        last_occurrence: pattern.lastOccurrence,
-        occurrence_count: pattern.occurrenceCount,
-        is_active: pattern.isActive,
-        _id: pattern._id,
-      })),
+      patterns,
     };
   }
 
@@ -63,20 +52,12 @@ export class PatternAnalyzerService {
       );
     }
 
-    const transactionsForAnalysis = transactions.map((t) => ({
-      description: t.description,
-      amount: t.amount,
-      date: t.date.toISOString().split('T')[0],
-    }));
-
     const strategy = this.selectPatternAnalyzerStrategy('gpt3.5');
 
-    const detectedPatterns = await strategy.detectPatterns(
-      transactionsForAnalysis,
-    );
+    const detectedPatterns = await strategy.detectPatterns(transactions);
 
     await Promise.all(
-      detectedPatterns.map(async (pattern) => {
+      detectedPatterns.patterns.map(async (pattern) => {
         const existingPattern = await this.transactionPatternModel.findOne({
           merchant: pattern.merchant,
           amount: Math.abs(pattern.amount),
@@ -90,28 +71,14 @@ export class PatternAnalyzerService {
             amount: Math.abs(pattern.amount),
             frequency: pattern.frequency,
             confidence: pattern.confidence,
-            nextExpected: new Date(pattern.nextExpected),
-            lastOccurrence: new Date(
-              transactions[transactions.length - 1].date,
-            ),
-            occurrenceCount: 1,
-            isActive: true,
+            nextExpected: new Date(pattern.next_expected),
           });
           await newPattern.save();
         }
       }),
     );
 
-    return {
-      patterns: detectedPatterns.map((pattern) => ({
-        type: pattern.type,
-        merchant: pattern.merchant,
-        amount: pattern.amount,
-        frequency: pattern.frequency,
-        confidence: pattern.confidence,
-        next_expected: pattern.nextExpected,
-      })),
-    };
+    return detectedPatterns;
   }
 
   async deleteAllPatterns(): Promise<void> {

@@ -3,12 +3,6 @@ import { Document } from 'mongoose';
 
 export type TransactionPatternDocument = TransactionPattern & Document;
 
-export enum PatternType {
-  SUBSCRIPTION = 'subscription',
-  RECURRING = 'recurring',
-  PERIODIC = 'periodic',
-}
-
 export enum FrequencyType {
   DAILY = 'daily',
   WEEKLY = 'weekly',
@@ -19,8 +13,8 @@ export enum FrequencyType {
 
 @Schema({ timestamps: true })
 export class TransactionPattern {
-  @Prop({ required: true, enum: PatternType })
-  type: PatternType;
+  @Prop({ required: true})
+  type: string;
 
   @Prop({ required: true })
   merchant: string;
@@ -35,16 +29,7 @@ export class TransactionPattern {
   confidence: number;
 
   @Prop({ required: true, type: Date })
-  nextExpected: Date;
-
-  @Prop({ type: Date })
-  lastOccurrence: Date;
-
-  @Prop({ type: Number, default: 0 })
-  occurrenceCount: number;
-
-  @Prop({ type: Boolean, default: true })
-  isActive: boolean;
+  next_expected: Date;
 }
 
 export const TransactionPatternSchema =

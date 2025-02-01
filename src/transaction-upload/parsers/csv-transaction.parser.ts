@@ -15,16 +15,11 @@ export class CsvTransactionParser implements TransactionParser {
         columns: true,
         skip_empty_lines: true,
       })
-        .on('data', (record: any) => {
+        .on('data', (record: ParsedTransaction) => {
           records.push({
-            description:
-              record.description ||
-              record.merchant ||
-              record.transaction_description,
-            amount: this.parseAmount(
-              record.amount || record.transaction_amount,
-            ),
-            date: this.parseDate(record.date || record.transaction_date),
+            description: record.description,
+            amount: this.parseAmount(record.amount),
+            date: this.parseDate(record.date),
           });
         })
         .on('error', reject)

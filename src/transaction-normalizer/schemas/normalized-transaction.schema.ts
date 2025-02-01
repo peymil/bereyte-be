@@ -6,7 +6,10 @@ export type NormalizedTransactionDocument = NormalizedTransaction & Document;
 @Schema({ timestamps: true })
 export class NormalizedTransaction {
   @Prop({ type: Types.ObjectId, ref: 'Transaction', required: true })
-  transactionId: Types.ObjectId;
+  transaction_id: Types.ObjectId;
+
+  @Prop({ required: true })
+  original: string;
 
   @Prop({ required: true })
   merchant: string;
@@ -15,19 +18,19 @@ export class NormalizedTransaction {
   category: string;
 
   @Prop({ required: true })
-  subCategory: string;
+  sub_category: string;
 
   @Prop({ required: true, type: Number, min: 0, max: 1 })
   confidence: number;
 
   @Prop({ required: true })
-  isSubscription: boolean;
+  is_subscription: boolean;
 
   @Prop({ type: [String], default: [] })
   flags: string[];
 
   @Prop({ type: Date, required: true })
-  transactionDate: Date;
+  transaction_date: Date;
 
   @Prop({ type: Number, required: true })
   amount: number;
