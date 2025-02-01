@@ -45,7 +45,9 @@ export class OpenAIService {
       maxTokens?: number;
     } = {},
   ): Promise<T> {
+    console.log('Prompt:', prompt);
     const response = await this.createCompletion(prompt, options);
+    console.log('Response:', response);
     try {
       return JSON.parse(response) as T;
     } catch {
