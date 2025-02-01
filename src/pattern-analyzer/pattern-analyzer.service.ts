@@ -10,10 +10,12 @@ import {
   TransactionDocument,
 } from '../transaction-upload/schemas/transaction.schema';
 import { Gpt4MiniPatternDetectorStrategy } from './strategies/gpt4-mini-pattern-detector.strategy';
+import { Gpt35PatternDetectorStrategy } from './strategies/gpt35-pattern-detector.strategy';
 
 @Injectable()
 export class PatternAnalyzerService {
   constructor(
+    private readonly gpt35PatternDetectorStrategy: Gpt35PatternDetectorStrategy,
     private readonly gpt4MiniPatternDetectorStrategy: Gpt4MiniPatternDetectorStrategy,
     @InjectModel(TransactionPattern.name)
     private transactionPatternModel: Model<TransactionPatternDocument>,
@@ -21,11 +23,11 @@ export class PatternAnalyzerService {
     private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  selectPatternAnalyzerStrategy(strategy: string) {
-    if (strategy === 'gpt4-mini') {
-      return this.gpt4MiniPatternDetectorStrategy;
+  selectPatternAnalyzerStrategy(strategy?: string) {
+    if (strategy === 'gpt35') {
+      return this.gpt35PatternDetectorStrategy;
     } else {
-      throw new BadRequestException('Invalid strategy');
+      return this.gpt4MiniPatternDetectorStrategy;
     }
   }
 
@@ -66,11 +68,7 @@ export class PatternAnalyzerService {
 
         if (!existingPattern) {
           const newPattern = new this.transactionPatternModel({
-            type: pattern.type,
-            merchant: pattern.merchant,
-            amount: Math.abs(pattern.amount),
-            frequency: pattern.frequency,
-            confidence: pattern.confidence,
+            ...pattern,
             next_expected: new Date(pattern.next_expected),
           });
           await newPattern.save();
