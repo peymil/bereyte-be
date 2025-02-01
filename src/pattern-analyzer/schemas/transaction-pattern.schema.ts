@@ -13,7 +13,7 @@ export enum FrequencyType {
 
 @Schema({ timestamps: true })
 export class TransactionPattern {
-  @Prop({ required: true})
+  @Prop({ required: true })
   type: string;
 
   @Prop({ required: true })

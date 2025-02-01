@@ -34,7 +34,7 @@ export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
       - amount: Expected amount of the transaction
       - frequency: Frequency of occurrence (daily, weekly, monthly, quarterly, yearly)
       - confidence: Number between 0 and 1 indicating confidence in the pattern
-      - nextExpected: Expected date of next occurrence (YYYY-MM-DD format)
+      - next_expected: Expected date of next occurrence (YYYY-MM-DD format)
     `;
 
     return this.openAIService.createStructuredCompletion<AnalyzePatternsResponse>(
