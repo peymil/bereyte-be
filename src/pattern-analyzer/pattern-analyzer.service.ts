@@ -68,7 +68,11 @@ export class PatternAnalyzerService {
 
         if (!existingPattern) {
           const newPattern = new this.transactionPatternModel({
-            ...pattern,
+            type: pattern.type,
+            merchant: pattern.merchant,
+            amount: Math.abs(pattern.amount),
+            frequency: pattern.frequency,
+            confidence: pattern.confidence,
             next_expected: new Date(pattern.next_expected),
           });
           await newPattern.save();
