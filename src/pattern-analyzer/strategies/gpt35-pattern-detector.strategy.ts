@@ -41,7 +41,7 @@ export class Gpt35PatternDetectorStrategy implements PatternDetectorStrategy {
       prompt,
       {
         temperature: 0.3,
-        maxTokens: 1000,
+        maxTokens: 4096,
       },
     );
   }

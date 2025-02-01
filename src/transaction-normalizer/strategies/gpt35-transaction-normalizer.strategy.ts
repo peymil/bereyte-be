@@ -78,7 +78,7 @@ ${JSON.stringify(transactions, null, 2)}
         NormalizedTransaction[]
       >(prompt, {
         temperature: 0.3,
-        maxTokens: 500,
+        maxTokens: 4096,
       });
 
     return normalizedResults.map((result, index) => ({
