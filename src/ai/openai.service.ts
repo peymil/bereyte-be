@@ -37,6 +37,12 @@ export class OpenAIService {
     return response.choices[0]?.message?.content || '';
   }
 
+  private cleanJsonString(jsonString: string): string {
+    const pattern = /^```json\s*([\s\S]*?)\s*```$/;
+    const match = jsonString.match(pattern);
+    return match ? match[1].trim() : jsonString.trim();
+  }
+
   async createStructuredCompletion<T>(
     prompt: string,
     options: {
@@ -49,7 +55,8 @@ export class OpenAIService {
     const response = await this.createCompletion(prompt, options);
     console.log('Response:', response);
     try {
-      return JSON.parse(response) as T;
+      const cleanedResponse = this.cleanJsonString(response);
+      return JSON.parse(cleanedResponse) as T;
     } catch {
       throw new Error('Failed to parse response from LLM model.');
     }
