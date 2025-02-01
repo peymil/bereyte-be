@@ -75,12 +75,13 @@ ${JSON.stringify(transactions, null, 2)}
 </transactions>
 `;
 
-    const normalizedResults = await this.openAIService.analyzeTransaction<
-      NormalizedTransaction[]
-    >(prompt, {
-      temperature: 0.3,
-      maxTokens: 500,
-    });
+    const normalizedResults =
+      await this.openAIService.createStructuredCompletion<
+        NormalizedTransaction[]
+      >(prompt, {
+        temperature: 0.3,
+        maxTokens: 500,
+      });
 
     return normalizedResults.map((result, index) => ({
       ...result,
