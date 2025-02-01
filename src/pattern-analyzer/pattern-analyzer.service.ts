@@ -71,7 +71,7 @@ export class PatternAnalyzerService {
             amount: Math.abs(pattern.amount),
             frequency: pattern.frequency,
             confidence: pattern.confidence,
-            nextExpected: new Date(pattern.next_expected),
+            next_expected: new Date(pattern.next_expected),
           });
           await newPattern.save();
         }
