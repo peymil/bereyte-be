@@ -89,7 +89,7 @@ ${JSON.stringify(
       await this.openAIService.createStructuredCompletion<
         NormalizedTransaction[]
       >(prompt, {
-        model: 'gpt-4-mini',
+        model: 'openai/gpt-4o-mini',
         temperature: 0.3,
         maxTokens: 4096,
       });
