@@ -85,7 +85,7 @@ export class Gpt4MiniPatternDetectorStrategy
     return this.openAIService.createStructuredCompletion<AnalyzePatternsResponse>(
       prompt,
       {
-        model: 'gpt-4-mini',
+        model: 'openai/gpt-4o-mini',
         temperature: 0.3,
         maxTokens: 4096,
       },
