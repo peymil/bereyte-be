@@ -59,10 +59,11 @@ $ npm run test:cov
 ```
 
 ## Design Choices
-I chose to use a strategy pattern since we can use different LLMs with different configurations and also used the same pattern in file parser.
-Used mongodb with mongoose since it is your database mentioned in job requirements.
-Developed with help of the anthropic/claude-3.5-sonnet:beta with Roo Cline. Added logs of my chats to root folder.
-Transaction analyze module exposes /api/merchant/analyze and module name is kinda not fitting to endpoint. I chose this because I didn't like the endpoint name mentioned in the assessment and used another name in code.
-Not handling edge cases like uploading corrupted csv file, injecting instruction to prompt with a infected csv file etc.
-I normally publish an npm package generated from openapi specs to distribute it to frontend. But i think it will be a overkill in this case.
-I think this is not usable in production. AI is a overkill for analyzing transactions, costs too much and slow. We need a fine tuned model/agent for that or we can use data analysis tools instead of LLMs?
+
+- I chose to use a strategy pattern since we can use different LLMs with different configurations and also used the same pattern in file parser.
+- Used mongodb with mongoose since it is your database mentioned in job requirements.
+- Developed with help of the anthropic/claude-3.5-sonnet:beta with Roo Cline. Added logs of my chats to root folder.
+- Transaction analyze module exposes /api/merchant/analyze and module name is kinda not fitting to endpoint. I chose this because I didn't like the endpoint name mentioned in the assessment and used another name in code.
+- Not handling edge cases like uploading corrupted csv file, injecting instruction to prompt with a infected csv file etc.
+- I normally publish an npm package generated from openapi specs to distribute it to frontend. But i think it will be a overkill in this case.
+- I think this is not usable in production. AI is a overkill for analyzing transactions, costs too much and slow. We need a fine tuned model/agent for that or we can use data analysis tools instead of LLMs?

@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { Transaction } from '../../transaction-upload/schemas/transaction.schema';
 
 export type NormalizedTransactionDocument = NormalizedTransaction & Document;
 
 @Schema({ timestamps: true })
 export class NormalizedTransaction {
-  @Prop({ type: Types.ObjectId, ref: 'Transaction', required: true })
-  transaction_id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: Transaction.name, required: true })
+  transaction: Transaction;
 
   @Prop({ required: true })
   original: string;

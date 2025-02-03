@@ -1,14 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  NormalizedTransaction,
-  NormalizedTransactionDocument,
-} from './schemas/normalized-transaction.schema';
-import {
-  Transaction,
-  TransactionDocument,
-} from '../transaction-upload/schemas/transaction.schema';
+import { NormalizedTransaction } from './schemas/normalized-transaction.schema';
+import { Transaction } from '../transaction-upload/schemas/transaction.schema';
 import { AnalyzeTransactionResponse } from './dtos/analyze-transaction.dto';
 import { Gpt4MiniTransactionNormalizerStrategy } from './strategies/gpt4-mini-transaction-normalizer.strategy';
 import { TransactionNormalizer as TransactionNormalizerInterface } from './transaction-normalizer.interface';
@@ -36,14 +30,13 @@ export class TransactionNormalizerService {
   async getNormalizedTransactions(): Promise<AnalyzeTransactionResponse> {
     const normalizedTransactions = await this.normalizedTransactionModel
       .find()
-      .populate<{ transactionId: TransactionDocument }>('transaction_id')
       .sort({ transaction_date: -1 })
       .lean();
 
     return {
       normalized_transactions: normalizedTransactions.map(
         (normalizedTransaction) => ({
-          original: normalizedTransaction.transactionId.description,
+          original: normalizedTransaction.original,
           amount: normalizedTransaction.amount,
           normalized: {
             merchant: normalizedTransaction.merchant,
@@ -78,7 +71,7 @@ export class TransactionNormalizerService {
       transactions.map((transaction, index) => {
         const normalized = normalizedResults[index];
         return this.normalizedTransactionModel.create({
-          transaction_id: transaction._id,
+          transaction: transaction._id,
           original: transaction.description,
           merchant: normalized.merchant,
           category: normalized.category,
